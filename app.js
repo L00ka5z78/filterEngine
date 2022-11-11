@@ -65,12 +65,59 @@ const displayProducts = (filteredProducts) => {
 displayProducts(data);
 
 searchInput.addEventListener("keyup", (e) => {
-    // console.log(e.target.value)                     //to check values written in search box therefore ==>
+    // console.log(e.target.value)                     // <== to check values written in search box therefore ==>
     const value = e.target.value.toLowerCase();         //doesnt matter if search capitals or lower letters
 
     if (value) {
+        displayProducts(data.filter(item => item.name.toLowerCase().indexOf(value) !== -1))
 
+        /**reminder for me how indexOf works
+        * const a = "abcde"
+        * a.indexOf("c") <-2
+        */
     } else {
-        displayProducts(data)
+        displayProducts(data);
     }
 });
+
+const setCategories = () => {
+    const allCategories = data.map(item => item.category)
+    // console.log(allCategories)
+    const categories = ["All", ...allCategories.filter((item, i) => {
+
+        //created array, first element will be ALL'and after that will be  whatever is inside allCategories 
+
+        return allCategories.indexOf(item) === i;
+    })];
+
+    categoriesContainer.innerHTML = categories.map(categories =>
+        `
+        <span class="category">${categories}</span>
+        `
+    ).join("")
+
+    categoriesContainer.addEventListener("click", (e) => {
+        const selectedCat = e.target.textContent                 /**  <--using parent element and text content to display category text */
+
+        selectedCat === "All" ? displayProducts(data) : displayProducts(data.filter(item => item.category === selectedCat))
+    });
+};
+
+const setPrices = () => {
+    const priceList = data.map(item => item.price);
+    const minPrice = Math.min(...priceList)
+    const maxPrice = Math.max(...priceList)
+
+    priceRange.min = minPrice;
+    priceRange.max = maxPrice;
+    priceRange.value = maxPrice
+    priceValue.textContent = "$" + maxPrice
+
+    priceRange.addEventListener("input", (e) => {
+        priceValue.textContent = "$" + e.target.value;
+        displayProducts(data.filter(item => item.price <= e.target.value))
+    })
+}
+
+setCategories();
+setPrices();
